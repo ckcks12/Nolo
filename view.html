@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>놀로 - </title>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
+	<style type="text/css">
+	/*@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);*/
+	.vmiddle
+	{ 
+		position: relative;
+		top: 50%;
+		-webkit-transform: translateY(-50%);
+		-ms-transform: translateY(-50%);
+		transform: translateY(-50%);
+	}
+	div#ViewScene
+	{
+		margin-top: 50px;
+	}
+	p
+	{
+		line-height: 200%;
+	}
+	</style>
+</head>
+<body> 
+	<div class="ui container">
+		<div id="ViewScene">
+			<div class="ui piled segment" id="View">
+				<h1 class="ui center aligned header" id="title"></h1>
+			</div>
+		</div>  
+	</div>
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js"></script>
+	<script type="text/javascript" src="VisitKoreaAPI.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDll95DrWfq2APXjDj2SS-hp3ITJk194rw"></script>
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBX1ydSCRBpUt8NYA347rNBPo-ShOwsf-E"></script> -->
+	<script type="text/javascript">
+		window.contentid = location.href.split("contentid=")[1];
+
+		$.get(
+		{
+			url: window.api.detailCommon(10, 1, window.contentid, "", "Y", "Y", "Y", "Y", "Y", "Y", "Y"),
+			success: function(d)
+			{
+				d = d.response.body.items.item;
+                // console.log(d);
+				$("title").text("놀로 - " + d.title);
+				$("#title").text(d.title);
+                addView("설명", d.overview);
+                addView("홈페이지", d.homepage); 
+
+                // custom detail
+                var detail =
+                {
+                    // 12 관광지
+                    "expguide": "체험 안내",
+                    "infocenter": "문의 및 안내",
+                    "opendate": "개장일",
+                    "restdate": "쉬는날",
+                    "useseason": "이용시기",
+                    "usetime": "이용시간",
+                    // 14 문화시설 
+                    "discountinfo": "할인정보",
+                    "infocenterculture": "문의 및 안내",
+                    "parkingculture": "주차 시설",
+                    "parkingfee": "주차 요금",
+                    "restdateculture": "쉬는날",
+                    "usefee": "이용요금",
+                    "usetimeculture": "이용시간",
+                    "spendtime": "관람소요시간",
+                    // 15 행사 공연 축제
+                    "placeinfo": "행사장위치안내",
+                    "agelimit": "관람가능연령  ",
+                    "bookingplace": "예매처",
+                    "discountinfofestival": "할인정보",
+                    "eventstartdate": "행사시작일",
+                    "eventenddate": "행사종료일",
+                    "eventhomepage": "행사홈페이지",
+                    "program": "행사프로그램",
+                    "usetimefestival": "이용요금",
+                    // 25 여행 코스
+                    "schedule": "코스일정",
+                    "distance": "코스총거리",
+                    "taketime": "코스총소요시간",
+                    "infocentertourcourse": "문의및안내",
+                    // 28 레포츠
+                    "openperiod": "개장기간",
+                    "usetimeleports": "이용시간",
+                    "usefeeleports": "입장료",
+                    "expagerangeleports": "체험가능연령",
+                    "reservation": "예약안내",
+                    "restdateleports": "쉬는날",
+                    "infocenterleports": "문의및안내",
+                    // 32 숙박
+                    "infocenterlodging": "문의및안내",
+                    "reservationlodging": "예약안내",
+                    "reservationurl": "예약안내홈페이지",
+                    "accomcountlodging": "수용가능인원",
+                    "roomtype": "객실유형",
+                    "checkintime": "입실시간",
+                    "checkouttime": "퇴실시간",
+                    // 38 쇼핑
+                    "opentime": "영업시간",
+                    "opendateshopping": "개장일",
+                    "saleitem": "판매품목",
+                    "saleitemcost": "판매품목별가격",
+                    "fairday": "장서는날",
+                    "infocentershopping": "문의및안내",
+                    // 39 음식점
+                    "firstmenu": "대표메뉴",
+                    "discountinfofood": "할인정보",
+                    "opentimefood": "영업시간",
+                    "restdatefood": "쉬는날",
+                    "reservationfood": "예약안내",
+                    "infocenterfood": "문의및안내"
+                };
+                $.get(
+                {
+                    url: window.api.detailIntro(10, 1, d.contentid, d.contenttypeid, "Y"),
+                    success: (dd) => 
+                    {
+                        dd = dd.response.body.items.item;
+                        //console.log(dd);
+                        var key = Object.keys(detail);
+                        for( var i=0; i<key.length; i++ )
+                        {
+                            if( dd.hasOwnProperty(key[i]) )
+                            {
+                                addView(detail[key[i]], dd[key[i]]);
+                            }
+                        } 
+
+                        // add image
+                        $.get(
+                        {
+                            url: window.api.detailImage(10, 1, d.contentid, "", "Y"),
+                            success: (ddd) =>
+                            {
+                                ddd = ddd.response.body.items.item;
+                                var img_url_arr = [];
+                                for( var i=0; i<ddd.length; i++ )
+                                {
+                                    img_url_arr[img_url_arr.length] = ddd[i].originimgurl;
+                                }
+                                addImgView(img_url_arr);
+
+                                // add map
+                                d.mapx = parseFloat(d.mapx);
+                                d.mapy = parseFloat(d.mapy);
+                                addGoogleMap(d.mapx, d.mapy);
+                            }    
+                        });
+                    }
+                });
+			}
+		});
+
+        function addView(title, content)
+        {
+            if( content === undefined )
+            {
+                return;
+            }
+            var html = "<h4 class=\"ui dividing header\">" + title + "</h4>\n"
+                        + "<p>" + content + "</p>";
+            $("#View").append(html);
+        }
+
+        function addImgView(image_url_arr)
+        {
+            var html = "<h4 class=\"ui dividing header\">사진</h4>\n";
+            for( var i=0; i<image_url_arr.length; i++ )
+            {
+                html += "<img src=\"" + image_url_arr[i] + "\" class=\"ui massive centered image\">\n";
+            }
+            $("#View").append(html);
+        }
+
+        function addNaverMap(map_x, map_y)
+        {
+            var html = "<h4 class=\"ui dividing header\">지도</h4>\n";
+            html += "<a href=\"http://maps.naver.com/?menu=openmap&mapMode=0&lat=" + map_y + "&lng=" + map_x + "\">네이버 지도</a>\n";
+            $("#View").append(html);
+        }
+
+        function addGoogleMap(map_x, map_y)
+        {
+            var html = "<h4 class=\"ui dividing header\">지도</h4>\n";
+            html += "<div id=\"map\" style=\"widht: 500px; height: 500px;\"></div>\n";
+            $("#View").append(html);  
+            var map = new google.maps.Map(document.getElementById("map"), 
+            {
+                center: {lat: map_y, lng: map_x},
+                zoom: 17
+            });
+            new google.maps.Marker(
+            {
+                map: map,
+                position: {lat: map_y, lng: map_x}
+            });   
+        }
+	</script>
+</body>
+</html>
